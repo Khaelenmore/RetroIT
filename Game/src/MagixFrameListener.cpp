@@ -119,7 +119,10 @@ MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler,
         #endif
     }
 
-    mInputManager = InputManager::createInputSystem(pl);
+    size_t hWnd;
+    mWindow->getCustomAttribute("WINDOW", &hWnd);
+
+    mInputManager = InputManager::createInputSystem(hWnd);
 
     //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
     mKeyboard = static_cast<Keyboard*>(mInputManager->createInputObject(
