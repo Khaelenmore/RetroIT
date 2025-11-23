@@ -266,21 +266,15 @@ void MagixSoundManager::playRandomAmbientMusic()
 {
     if(musicList.size() > 1)
     {
-        bool isRepeat = true;
+        unsigned short tID = (unsigned short)Math::RangeRandom(0, (Real)musicList.size());
 
-        while(isRepeat)
+        if(tID >= (int)musicList.size())
         {
-            unsigned short tID = (unsigned short)Math::RangeRandom(0, (Real)musicList.size());
-
-            if(tID >= (int)musicList.size())
-            {
-                tID = 0;
-            }
-
-            const int tLastMusic = music;
-            playMusic(musicList[tID].c_str(), false);
-            isRepeat = (tLastMusic == music);
+            tID = 0;
         }
+
+        const int tLastMusic = music;
+        playMusic(musicList[tID].c_str(), false);
     }
     else if(musicList.size() > 0)
     {
