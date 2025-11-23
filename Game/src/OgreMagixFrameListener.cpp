@@ -190,8 +190,8 @@ bool ogremagixFrameListener::mouseMoved(const OIS::MouseEvent &e)
                 const int tY = lpPoint.y - tT - 30;
                 #else
                 const MouseState mouseState = mMouse->getMouseState();
-                const int tX = mouseState.X.abs - tL + 130;
-                const int tY = mouseState.Y.abs - tT + 130;
+                const int tX = mouseState.X.abs;
+                const int tY = mouseState.Y.abs;
                 #endif
                 
                 mMagixHandler->getMagixGUI()->scrollMouse(tX, tY, tW, tH, true);
