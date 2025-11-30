@@ -1827,9 +1827,15 @@ void MagixExternalDefinitions::loadWeatherCycle(const String &type, vector<Weath
         }
     }
 
-    if(tFilename == "" && !isCustom)
+    if(tFilename.empty() && !isCustom)
     {
         loadWeatherCycle(type, list, true);
+        return;
+    }
+
+    if (tFilename.empty())
+    {
+        LogManager::getSingletonPtr()->logMessage("Unable to load weather \"" + type + "\"");
         return;
     }
 
