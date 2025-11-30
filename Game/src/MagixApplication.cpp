@@ -523,8 +523,8 @@ void MagixApplication::createFrameListener(void)
 
 MagixApplication::~MagixApplication()
 {
+    delete mMagixHandler;
     delete mFrameListener;
     delete mRoot;
     delete mMagixEncryptionZipFactory;
-    delete mMagixHandler;
 }
