@@ -515,8 +515,12 @@ void MagixApplication::createScene(void)
 
 void MagixApplication::createFrameListener(void)
 {
+    // FIXME Not destroyed
     auto* debugOverlay = new DebugOverlay(mWindow);
-    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow, debugOverlay);
+
+    // FIXME Destroyed in mFrameListener, should be here
+    auto* inputListener = new Magix::InputListener(mMagixHandler, mWindow, debugOverlay, true, true);
+    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow, debugOverlay, inputListener);
     mRoot->addFrameListener(mFrameListener);
 }
 

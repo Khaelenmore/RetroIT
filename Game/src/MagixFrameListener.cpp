@@ -16,23 +16,17 @@ MagixFrameListener::MagixFrameListener(
     SceneManager *sceneMgr,
     RenderWindow* win,
     DebugOverlay* debugOverlay,
-    bool bufferedKeys,
-    bool bufferedMouse
+    Magix::InputListener* inputListener
 ):
     mWindow(win),
     mDebugOverlay(debugOverlay),
     mSceneMgr(sceneMgr),
-    mMagixHandler(magixHandler)
+    mMagixHandler(magixHandler),
+    mInputListener(inputListener)
 {
     using namespace OIS;
 
     LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-
-    //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-
-
-    //See if can be untied from frameListener
-    mInputListener = new Magix::InputListener(magixHandler, win, mDebugOverlay, bufferedKeys, bufferedMouse);
 
     //Set initial mouse clipping size
     windowResized(mWindow);

@@ -60,8 +60,7 @@ public:
         SceneManager *sceneMgr,
         RenderWindow* win,
         DebugOverlay* debugOverlay,
-        bool bufferedKeys = true,
-        bool bufferedMouse = true
+        Magix::InputListener* inputListener
     );
 
     //Adjust mouse clipping area
