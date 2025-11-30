@@ -3,7 +3,6 @@
 //
 
 #include "MagixInputListener.h"
-#include "Ogre.h"
 #include "MagixCamera.h"
 
 using namespace Ogre;
@@ -13,18 +12,74 @@ namespace Magix{
     InputListener::InputListener (
         MagixHandler* magixHandler,
         RenderWindow* window,
-        OIS::Mouse* mouse,
-        OIS::Keyboard* keyboard,
-        DebugOverlay* debugOverlay
+        DebugOverlay* debugOverlay,
+        bool bufferedKeys,
+        bool bufferedMouse
     ):
         mMagixHandler(magixHandler),
         mWindow(window),
-        mMouse(mouse),
-        mKeyboard(keyboard),
         mDebugOverlay(debugOverlay)
     {
+        ParamList pl;
+        size_t windowHnd = 0;
+        std::ostringstream windowHndStr;
 
+        mWindow->getCustomAttribute("WINDOW", &windowHnd);
+        windowHndStr << windowHnd;
+        pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+
+        bool useWindowsCursor = false;
+        std::ifstream inFile("useWindowsCursor.dat");
+
+        if(inFile.good())
+        {
+            useWindowsCursor = true;
+        }
+
+        inFile.close();
+
+        if(useWindowsCursor)
+        {
+#if defined OIS_WIN32_PLATFORM
+            pl.insert(std::make_pair(std::string("w32_mouse"),
+            std::string("DISCL_FOREGROUND")));
+        pl.insert(std::make_pair(std::string("w32_mouse"),
+            std::string("DISCL_NONEXCLUSIVE")));
+        //pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
+        //pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+#elif defined OIS_LINUX_PLATFORM
+            pl.insert(std::make_pair(std::string("x11_mouse_grab"),
+                                     std::string("false")));
+            pl.insert(std::make_pair(std::string("x11_mouse_hide"),
+                                     std::string("true")));
+            pl.insert(std::make_pair(std::string("x11_keyboard_grab"),
+                                     std::string("true")));
+            //pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+#endif
+
+#ifdef __WIN32__
+            if(ShowCursor(false) < -1)
+        {
+            ShowCursor(true);
+        }
+#endif
+        }
+
+        mInputManager = InputManager::createInputSystem(pl);
+
+        mKeyboard = dynamic_cast<Keyboard*>(mInputManager->createInputObject(OISKeyboard, bufferedKeys));
+        mMouse = dynamic_cast<Mouse*>(mInputManager->createInputObject(OISMouse, bufferedMouse));
+
+        mMouse->setEventCallback(this);
+        mKeyboard->setEventCallback(this);
+        mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
     };
+
+    void InputListener::adjustMouseClipping(int width, int height) {
+        const OIS::MouseState &ms = mMouse->getMouseState();
+        ms.width = width;
+        ms.height = height;
+    }
 
     bool InputListener::mouseMoved(const OIS::MouseEvent &e)
     {
@@ -862,5 +917,17 @@ namespace Magix{
         }
 
         return true;
+    }
+
+    void InputListener::capture() {
+        mKeyboard->capture();
+        mMouse->capture();
+    }
+
+    InputListener::~InputListener() {
+        mInputManager->destroyInputObject(mMouse);
+        mInputManager->destroyInputObject(mKeyboard);
+        OIS::InputManager::destroyInputSystem(mInputManager);
+        mInputManager = nullptr;
     }
 }

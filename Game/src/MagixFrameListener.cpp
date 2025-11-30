@@ -22,70 +22,18 @@ MagixFrameListener::MagixFrameListener(
 ):
     mWindow(win),
     mDebugOverlay(debugOverlay),
-    mInputManager(0),
-    mMouse(0),
-    mKeyboard(0),
     mSceneMgr(sceneMgr),
     mMagixHandler(magixHandler)
 {
     using namespace OIS;
 
     LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-    ParamList pl;
-    size_t windowHnd = 0;
-    std::ostringstream windowHndStr;
-
-    win->getCustomAttribute("WINDOW", &windowHnd);
-    windowHndStr << windowHnd;
-    pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-
-    bool useWindowsCursor = false;
-    std::ifstream inFile("useWindowsCursor.dat");
-
-    if(inFile.good())
-    {
-        useWindowsCursor = true;
-    }
-
-    inFile.close();
-
-    if(useWindowsCursor)
-    {
-        #if defined OIS_WIN32_PLATFORM
-        pl.insert(std::make_pair(std::string("w32_mouse"),
-            std::string("DISCL_FOREGROUND")));
-        pl.insert(std::make_pair(std::string("w32_mouse"),
-            std::string("DISCL_NONEXCLUSIVE")));
-        //pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
-        //pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
-       #elif defined OIS_LINUX_PLATFORM
-        pl.insert(std::make_pair(std::string("x11_mouse_grab"),
-            std::string("false")));
-        pl.insert(std::make_pair(std::string("x11_mouse_hide"),
-            std::string("true")));
-        pl.insert(std::make_pair(std::string("x11_keyboard_grab"), 
-            std::string("true")));
-        //pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
-        #endif
-        
-        #ifdef __WIN32__
-        if(ShowCursor(false) < -1)
-        {
-            ShowCursor(true);
-        }
-        #endif
-    }
-
-    mInputManager = InputManager::createInputSystem(pl);
 
     //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-    mKeyboard = static_cast<Keyboard*>(mInputManager->createInputObject(
-        OISKeyboard, bufferedKeys));
-    mMouse = static_cast<Mouse*>(mInputManager->createInputObject(OISMouse,
-        bufferedMouse));
+
 
     //See if can be untied from frameListener
-    mInputListener = new Magix::InputListener(magixHandler, win, mMouse, mKeyboard, mDebugOverlay);
+    mInputListener = new Magix::InputListener(magixHandler, win, mDebugOverlay, bufferedKeys, bufferedMouse);
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -94,9 +42,7 @@ MagixFrameListener::MagixFrameListener(
     //Register as a Window listener
     WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    mMouse->setEventCallback(mInputListener);
-    mKeyboard->setEventCallback(mInputListener);
-    mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
+
 }
 
 
@@ -107,9 +53,7 @@ void MagixFrameListener::windowResized(RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mMouse->getMouseState();
-    ms.width = width;
-    ms.height = height;
+    mInputListener->adjustMouseClipping(width, height);
 }
 
 
@@ -119,14 +63,8 @@ void MagixFrameListener::windowClosed(RenderWindow* rw)
     //Only close for window that created OIS (the main window in these demos)
     if(rw == mWindow)
     {
-        if(mInputManager)
-        {
-            mInputManager->destroyInputObject(mMouse);
-            mInputManager->destroyInputObject(mKeyboard);
-
-            OIS::InputManager::destroyInputSystem(mInputManager);
-            mInputManager = 0;
-        }
+        delete mInputListener;
+        mInputListener = nullptr;
     }
 }
 
@@ -149,8 +87,6 @@ void MagixFrameListener::showDebugOverlay(bool show)
 // Override frameStarted event to process that (don't care about frameEnded)
 bool MagixFrameListener::frameStarted(const FrameEvent& evt)
 {
-    using namespace OIS;
-
     if(mWindow->isClosed())
     {
         return false;
@@ -161,9 +97,7 @@ bool MagixFrameListener::frameStarted(const FrameEvent& evt)
         mDebugOverlay->setDebugText(mMagixHandler->getDebugText());
     }
 
-    //Need to capture/update each device
-    mKeyboard->capture();
-    mMouse->capture();
+    mInputListener->capture();
 
     bool contFlag = mMagixHandler->update(evt);
 
@@ -171,8 +105,6 @@ bool MagixFrameListener::frameStarted(const FrameEvent& evt)
     {
         mWindow->getViewport(0)->setBackgroundColour(mSceneMgr->getFogColour());
     }
-
-    //if(!contFlag)mMagixHandler->shutdown();
 
     return contFlag;
 }

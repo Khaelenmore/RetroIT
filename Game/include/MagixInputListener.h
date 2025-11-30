@@ -16,10 +16,12 @@ namespace Magix {
         InputListener (
             MagixHandler* magixHandler,
             RenderWindow* window,
-            OIS::Mouse* mouse,
-            OIS::Keyboard* keyboard,
-            DebugOverlay* debugOverlay
+            DebugOverlay* debugOverlay,
+            bool bufferedKeys,
+            bool bufferedMouse
         );
+
+        void adjustMouseClipping(int width, int height);
 
         // MouseListener
         bool mouseMoved(const OIS::MouseEvent &e) override;
@@ -29,12 +31,17 @@ namespace Magix {
         // KeyListener
         bool keyPressed(const OIS::KeyEvent &e) override;
         bool keyReleased(const OIS::KeyEvent &e) override;
+
+        void capture();
+
+        ~InputListener();
     private:
         MagixHandler* mMagixHandler;
         DebugOverlay* mDebugOverlay;
         RenderWindow* mWindow;
         OIS::Mouse* mMouse;
         OIS::Keyboard* mKeyboard;
+        OIS::InputManager* mInputManager;
     };
 }
 

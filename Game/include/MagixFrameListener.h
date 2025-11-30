@@ -98,9 +98,6 @@ protected:
     DebugOverlay* mDebugOverlay;
 
     //OIS Input devices
-    OIS::InputManager* mInputManager;
-    OIS::Mouse*    mMouse;
-    OIS::Keyboard* mKeyboard;
     Magix::InputListener* mInputListener;
 protected:
     SceneManager* mSceneMgr;
