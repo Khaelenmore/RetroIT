@@ -516,8 +516,7 @@ void MagixApplication::createScene(void)
 void MagixApplication::createFrameListener(void)
 {
     auto* debugOverlay = new DebugOverlay(mWindow);
-    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow,
-                                            mCamera, debugOverlay);
+    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow, debugOverlay);
     mRoot->addFrameListener(mFrameListener);
 }
 

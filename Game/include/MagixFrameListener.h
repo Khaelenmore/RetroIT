@@ -59,7 +59,6 @@ public:
         MagixHandler *magixHandler,
         SceneManager *sceneMgr,
         RenderWindow* win,
-        Camera* cam,
         DebugOverlay* debugOverlay,
         bool bufferedKeys = true,
         bool bufferedMouse = true

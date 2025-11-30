@@ -15,7 +15,6 @@ MagixFrameListener::MagixFrameListener(
     MagixHandler *magixHandler,
     SceneManager *sceneMgr,
     RenderWindow* win,
-    Camera* cam,
     DebugOverlay* debugOverlay,
     bool bufferedKeys,
     bool bufferedMouse
