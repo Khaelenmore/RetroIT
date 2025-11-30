@@ -1,5 +1,5 @@
 #include "OgreMagixApp.h"
-#include "OgreMagixFrameListener.h"
+#include "MagixFrameListener.h"
 
 #include "GameConfig.h"
 
@@ -79,7 +79,8 @@ void ogremagixApp::destroyScene()
 // Create new frame listener
 void ogremagixApp::createFrameListener(void)
 {
-    mFrameListener = new ogremagixFrameListener(mMagixHandler, mSceneMgr, mWindow,
-        mCamera);
+    auto* debugOverlay = new DebugOverlay(mWindow);
+    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow,
+        mCamera, debugOverlay);
     mRoot->addFrameListener(mFrameListener);
 }

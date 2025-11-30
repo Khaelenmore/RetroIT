@@ -38,6 +38,8 @@ D:        Step right
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 #include "MagixHandler.h"
+#include "MagixInputListener.h"
+#include "DebugOverlay.h"
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
@@ -49,14 +51,19 @@ using namespace Ogre;
 
 class MagixFrameListener:
     public FrameListener,
-    public WindowEventListener,
-    public OIS::MouseListener,
-    public OIS::KeyListener
+    public WindowEventListener
 {
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    MagixFrameListener(MagixHandler *magixHandler, SceneManager *sceneMgr, RenderWindow* win, Camera* cam,
-        bool bufferedKeys = true, bool bufferedMouse = true);
+    MagixFrameListener(
+        MagixHandler *magixHandler,
+        SceneManager *sceneMgr,
+        RenderWindow* win,
+        Camera* cam,
+        DebugOverlay* debugOverlay,
+        bool bufferedKeys = true,
+        bool bufferedMouse = true
+    );
 
     //Adjust mouse clipping area
     virtual void windowResized(RenderWindow* rw);
@@ -70,12 +77,10 @@ public:
     bool frameStarted(const FrameEvent& evt);
     bool frameEnded(const FrameEvent& evt);
 protected:
-    void updateStats(void);
     //Camera* mCamera;
 
     //Vector3 mTranslateVector;
     RenderWindow* mWindow;
-    bool isStatsOn;
     std::string mDebugText;
 
     //unsigned int mNumScreenShots;
@@ -90,12 +95,13 @@ protected:
     //int mSceneDetailIndex ;
     //Real mMoveSpeed;
     //Degree mRotateSpeed;
-    Overlay* mDebugOverlay;
+    DebugOverlay* mDebugOverlay;
 
     //OIS Input devices
     OIS::InputManager* mInputManager;
     OIS::Mouse*    mMouse;
     OIS::Keyboard* mKeyboard;
+    Magix::InputListener* mInputListener;
 protected:
     SceneManager* mSceneMgr;
     MagixHandler *mMagixHandler;

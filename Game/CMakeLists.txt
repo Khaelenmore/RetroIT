@@ -99,6 +99,7 @@ endif(UNIX)
 #Add source code
 set(
     SOURCES
+    src/DebugOverlay.cpp
     src/DebugTrace.cpp
     src/MagixAlertBox.cpp
     src/MagixAnimated.cpp
@@ -118,6 +119,7 @@ set(
     src/MagixGUI.cpp
     src/MagixHandler.cpp
     src/MagixIndexedUnit.cpp
+    src/MagixInputListener.cpp
     src/MagixInputManager.cpp
     src/MagixItem.cpp
     src/MagixItemManager.cpp
@@ -136,7 +138,6 @@ set(
     src/main.cpp
     src/MovableTextOverlay.cpp
     src/OgreMagixApp.cpp
-    src/OgreMagixFrameListener.cpp
     src/SoundManager.cpp
 )
 

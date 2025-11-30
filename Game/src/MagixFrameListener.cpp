@@ -9,61 +9,19 @@
 
 //Frame Listener Functions
 //================================================================================
-void MagixFrameListener::updateStats(void)
-{
-    static String currFps = "Current FPS: ";
-    static String avgFps = "Average FPS: ";
-    static String bestFps = "Best FPS: ";
-    static String worstFps = "Worst FPS: ";
-    static String tris = "Triangle Count: ";
-    static String batches = "Batch Count: ";
-
-    // update stats when necessary
-    try
-    {
-        OverlayElement* guiAvg = OverlayManager::getSingleton().getOverlayElement(
-            "Core/AverageFps");
-        OverlayElement* guiCurr = OverlayManager::getSingleton().getOverlayElement(
-            "Core/CurrFps");
-        OverlayElement* guiBest = OverlayManager::getSingleton().getOverlayElement(
-            "Core/BestFps");
-        OverlayElement* guiWorst = OverlayManager::getSingleton().getOverlayElement(
-            "Core/WorstFps");
-
-        const RenderTarget::FrameStats& stats = mWindow->getStatistics();
-        guiAvg->setCaption(avgFps + StringConverter::toString(stats.avgFPS));
-        guiCurr->setCaption(currFps + StringConverter::toString(stats.lastFPS));
-        guiBest->setCaption(bestFps + StringConverter::toString(stats.bestFPS)
-            + " " + StringConverter::toString(stats.bestFrameTime) + " ms");
-        guiWorst->setCaption(worstFps + StringConverter::toString(stats.worstFPS)
-            + " " + StringConverter::toString(stats.worstFrameTime) + " ms");
-
-        OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement(
-            "Core/NumTris");
-        guiTris->setCaption(tris + StringConverter::toString(stats.triangleCount));
-
-        OverlayElement* guiBatches = OverlayManager::getSingleton().getOverlayElement(
-            "Core/NumBatches");
-        guiBatches->setCaption(batches + StringConverter::toString(
-            stats.batchCount));
-
-        OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement(
-            "Core/DebugText");
-        guiDbg->setCaption(mDebugText);
-    }
-    catch(...)
-    {
-        //ignore exceptions
-    }
-}
-
 
 // Constructor takes a RenderWindow because it uses that to determine input context
-MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler, SceneManager *sceneMgr,
-    RenderWindow* win, Camera* cam, bool bufferedKeys, bool bufferedMouse) :
+MagixFrameListener::MagixFrameListener(
+    MagixHandler *magixHandler,
+    SceneManager *sceneMgr,
+    RenderWindow* win,
+    Camera* cam,
+    DebugOverlay* debugOverlay,
+    bool bufferedKeys,
+    bool bufferedMouse
+):
     mWindow(win),
-    isStatsOn(false),
-    mDebugOverlay(0),
+    mDebugOverlay(debugOverlay),
     mInputManager(0),
     mMouse(0),
     mKeyboard(0),
@@ -71,8 +29,6 @@ MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler, SceneManager 
     mMagixHandler(magixHandler)
 {
     using namespace OIS;
-
-    mDebugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
 
     LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
     ParamList pl;
@@ -128,6 +84,9 @@ MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler, SceneManager 
     mMouse = static_cast<Mouse*>(mInputManager->createInputObject(OISMouse,
         bufferedMouse));
 
+    //See if can be untied from frameListener
+    mInputListener = new Magix::InputListener(magixHandler, win, mMouse, mKeyboard, mDebugOverlay);
+
     //Set initial mouse clipping size
     windowResized(mWindow);
     showDebugOverlay(SHOW_DBG_OVERLAY);
@@ -135,8 +94,8 @@ MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler, SceneManager 
     //Register as a Window listener
     WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    mMouse->setEventCallback(this);
-    mKeyboard->setEventCallback(this);
+    mMouse->setEventCallback(mInputListener);
+    mKeyboard->setEventCallback(mInputListener);
     mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 }
 
@@ -182,19 +141,8 @@ MagixFrameListener::~MagixFrameListener()
 
 void MagixFrameListener::showDebugOverlay(bool show)
 {
-    if(mDebugOverlay)
-    {
-        if(show)
-        {
-            mDebugOverlay->show();
-            isStatsOn = true;
-        }
-        else
-        {
-            mDebugOverlay->hide();
-            isStatsOn = false;
-        }
-    }
+    if (show) mDebugOverlay->show();
+    else mDebugOverlay->hide();
 }
 
 
@@ -210,7 +158,7 @@ bool MagixFrameListener::frameStarted(const FrameEvent& evt)
 
     if(mMagixHandler->getDebugText() != "")
     {
-        mDebugText = mMagixHandler->getDebugText();
+        mDebugOverlay->setDebugText(mMagixHandler->getDebugText());
     }
 
     //Need to capture/update each device
@@ -232,11 +180,7 @@ bool MagixFrameListener::frameStarted(const FrameEvent& evt)
 
 bool MagixFrameListener::frameEnded(const FrameEvent& evt)
 {
-    if(mDebugOverlay->isVisible())
-    {
-        updateStats();
-    }
-
+    mDebugOverlay->updateStats();
     return true;
 }
 
