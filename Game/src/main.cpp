@@ -18,7 +18,7 @@ LGPL like the rest of the OGRE engine.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreMagixApp.h"
+#include "MagixApplication.h"
 
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -38,7 +38,7 @@ extern "C"
 #endif
     {
         // Create application object
-        ogremagixApp app;
+        MagixApplication app;
         //MagixMain app;
 
         try

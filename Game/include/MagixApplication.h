@@ -16,33 +16,11 @@ class MagixApplication
 {
 public:
     /// Standard constructor
-    MagixApplication(MagixHandler *magixHandler):
-        mMagixHandler(magixHandler)
-    {
-        mFrameListener = 0;
-        mRoot = 0;
-        mLoadingBar = 0;
-        // Provide a nice cross platform solution for locating the configuration files
-        // On windows files are searched for in the current working directory, on OS X however
-        // you must provide the full path, the helper function macBundlePath does this for us.
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-        mResourcePath = macBundlePath() + "/Contents/Resources/";
-#else
-        mResourcePath = "./";
-#endif
-    }
+    MagixApplication();
 
 
     /// Standard destructor
-    virtual ~MagixApplication()
-    {
-        if (mFrameListener)
-            delete mFrameListener;
-        if (mRoot)
-            delete mRoot;
-        if(mMagixEncryptionZipFactory)
-            delete mMagixEncryptionZipFactory;
-    }
+    virtual ~MagixApplication();
 
     /// Start the example
     virtual void go(void);
@@ -66,8 +44,8 @@ protected:
     virtual bool configure(void);
     virtual void chooseSceneManager(void);
     virtual void createCamera(void);
-    virtual void createFrameListener(void) = 0;
-    virtual void createScene(void) = 0;    // pure virtual - this has to be overridden
+    virtual void createFrameListener(void);
+    virtual void createScene(void);
     virtual void destroyScene(void);
     virtual void createViewports(void);
 

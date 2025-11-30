@@ -10,6 +10,23 @@
 using namespace Ogre;
 
 
+MagixApplication::MagixApplication()
+{
+    mMagixHandler = new MagixHandler();
+    mFrameListener = 0;
+    mRoot = 0;
+    mLoadingBar = 0;
+    // Provide a nice cross platform solution for locating the configuration files
+    // On windows files are searched for in the current working directory, on OS X however
+    // you must provide the full path, the helper function macBundlePath does this for us.
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    mResourcePath = macBundlePath() + "/Contents/Resources/";
+#else
+    mResourcePath = "./";
+#endif
+}
+
+
 //Application Functions
 //================================================================================
 void MagixApplication::go(void)
@@ -80,8 +97,17 @@ bool MagixApplication::configure(void)
     {
         // If returned true, user clicked OK so initialise
         // Here we choose to let the system create a default rendering window by passing 'true'
-        mWindow = mRoot->initialise(true);
+        mWindow = mRoot->initialise(true, APP_TITLE);
         mWindow->setDeactivateOnFocusChange(false);
+
+        // Let's add a nice window icon
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        HWND hwnd;
+        mWindow->getCustomAttribute("WINDOW", (void*)&hwnd);
+        LONG iconID = (LONG)LoadIcon(GetModuleHandle(0),
+            MAKEINTRESOURCE(IDI_APPICON));
+        SetClassLong(hwnd, GCL_HICON, iconID);
+#endif
         return true;
     }
     else
@@ -102,17 +128,14 @@ void MagixApplication::createCamera(void)
 {
     // Create the camera
     mCamera = mSceneMgr->createCamera("PlayerCam");
-
-    // Position it at 500 in Z direction
-    mCamera->setPosition(Vector3(0, 0, 500));
-
-    // Look back along -Z
-    mCamera->lookAt(Vector3(0, 0, -300));
-    mCamera->setNearClipDistance(5);
+    mCamera->setNearClipDistance(0.1);
+    mCamera->setFarClipDistance(20000);
 }
 
 
-void MagixApplication::destroyScene(void) {}    // Optional to override this
+void MagixApplication::destroyScene(void) {
+    mMagixHandler->shutdown();
+}
 
 
 void MagixApplication::createViewports(void)
@@ -464,4 +487,44 @@ void MagixApplication::loadResources(void)
     mLoadingBar->matGenerateEnded("Wings", skip);
     delete compiler;
     mLoadingBar->finish();
+}
+
+void MagixApplication::createScene(void)
+{
+    ColourValue fadeColour = DEFAULT_FOG_COLOUR;
+    mSceneMgr->setFog(FOG_LINEAR, fadeColour, .0001, 500, 1500);
+    mWindow->getViewport(0)->setBackgroundColour(fadeColour);
+
+    mMagixHandler->initialize(mSceneMgr, mWindow);
+    mMagixHandler->getExternalDefinitions()->initializeCapabilities(
+            mRoot->getRenderSystem()->getCapabilities());
+
+    // Infinite far plane?
+    if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE))
+    {
+        mCamera->setFarClipDistance(0);
+    }
+
+    if (mMagixHandler->getExternalDefinitions()->hasVertexProgram &&
+        mMagixHandler->getExternalDefinitions()->hasFragmentProgram)
+    {
+        CompositorManager::getSingleton().addCompositor(mWindow->getViewport(0), "Bloom");
+        CompositorManager::getSingleton().addCompositor(mWindow->getViewport(0), "MotionBlur");
+    }
+}
+
+void MagixApplication::createFrameListener(void)
+{
+    auto* debugOverlay = new DebugOverlay(mWindow);
+    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow,
+                                            mCamera, debugOverlay);
+    mRoot->addFrameListener(mFrameListener);
+}
+
+MagixApplication::~MagixApplication()
+{
+    delete mFrameListener;
+    delete mRoot;
+    delete mMagixEncryptionZipFactory;
+    delete mMagixHandler;
 }

@@ -137,8 +137,7 @@ set(
     src/MagixWorld.cpp
     src/main.cpp
     src/MovableTextOverlay.cpp
-    src/OgreMagixApp.cpp
-    src/SoundManager.cpp
+        src/SoundManager.cpp
 )
 
 if(WIN32)
