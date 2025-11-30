@@ -1,12 +1,5 @@
 #include "MagixFrameListener.h"
 
-#if defined(DEBUG) || defined(_DEBUG)
-#define SHOW_DBG_OVERLAY true
-#else
-#define SHOW_DBG_OVERLAY false
-#endif
-
-
 //Frame Listener Functions
 //================================================================================
 
@@ -30,7 +23,6 @@ MagixFrameListener::MagixFrameListener(
 
     //Set initial mouse clipping size
     windowResized(mWindow);
-    showDebugOverlay(SHOW_DBG_OVERLAY);
 
     //Register as a Window listener
     WindowEventUtilities::addWindowEventListener(mWindow, this);
@@ -70,24 +62,12 @@ MagixFrameListener::~MagixFrameListener()
 }
 
 
-void MagixFrameListener::showDebugOverlay(bool show)
-{
-    if (show) mDebugOverlay->show();
-    else mDebugOverlay->hide();
-}
-
-
 // Override frameStarted event to process that (don't care about frameEnded)
 bool MagixFrameListener::frameStarted(const FrameEvent& evt)
 {
     if(mWindow->isClosed())
     {
         return false;
-    }
-
-    if(mMagixHandler->getDebugText() != "")
-    {
-        mDebugOverlay->setDebugText(mMagixHandler->getDebugText());
     }
 
     mInputListener->capture();

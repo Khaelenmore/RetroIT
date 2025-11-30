@@ -69,7 +69,6 @@ public:
     //Unattach OIS before window shutdown (very important under Linux)
     virtual void windowClosed(RenderWindow* rw);
     virtual ~MagixFrameListener();
-    void showDebugOverlay(bool show);
 
     // Override frameStarted event to process that (don't care about frameEnded)
     bool frameStarted(const FrameEvent& evt);

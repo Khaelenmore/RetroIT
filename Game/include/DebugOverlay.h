@@ -11,7 +11,7 @@ using namespace Ogre;
 
 class DebugOverlay {
 public:
-    DebugOverlay(RenderWindow* window);
+    explicit DebugOverlay(RenderWindow* window);
     void toggle();
     void show();
     void hide();

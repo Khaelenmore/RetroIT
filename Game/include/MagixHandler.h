@@ -15,6 +15,7 @@
 #include "MagixNetworkManager.h"
 #include "MagixOwnershipManager.h"
 #include "MagixCampaignManager.h"
+#include "DebugOverlay.h"
 
 using namespace Ogre;
 
@@ -24,6 +25,7 @@ class MagixHandler
 protected:
     SceneManager *mSceneMgr;
     RenderWindow *mWindow;
+    DebugOverlay *mDebugOverlay;
     MagixExternalDefinitions *mDef;
     MagixGameStateManager *mGameStateManager;
     MagixCamera *mCamera;
@@ -45,7 +47,7 @@ protected:
 public:
     MagixHandler();
     ~MagixHandler();
-    void initialize(SceneManager *sceneMgr, RenderWindow *window);
+    void initialize(SceneManager *sceneMgr, RenderWindow *window, DebugOverlay *debugOverlay);
     void shutdown();
     void resetScene(bool startScene = false, const String &mapChange = "");
     bool update(const FrameEvent &evt);

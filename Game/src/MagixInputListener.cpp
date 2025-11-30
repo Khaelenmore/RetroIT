@@ -727,8 +727,6 @@ namespace Magix{
                 case KC_ESCAPE:
                     mMagixHandler->getMagixGUI()->toggleShowOptions();
                     break;
-
-                    //case KC_L: showDebugOverlay(!isStatsOn); break;
                 case KC_INSERT:
                     mMagixHandler->getMagixGUI()->toggleIsTablet(true);
                     break;

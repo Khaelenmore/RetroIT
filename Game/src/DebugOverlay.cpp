@@ -4,9 +4,20 @@
 
 #include "DebugOverlay.h"
 
+#if defined(DEBUG) || defined(_DEBUG)
+#define SHOW_DBG_OVERLAY true
+#else
+#define SHOW_DBG_OVERLAY false
+#endif
+
 DebugOverlay::DebugOverlay(RenderWindow* window): mWindow(window) {
     mDebugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-    mIsVisible = false;
+    mIsVisible = SHOW_DBG_OVERLAY;
+    if (mIsVisible) {
+        show();
+    } else {
+        hide();
+    }
 }
 
 void DebugOverlay::toggle() {
@@ -28,7 +39,7 @@ void DebugOverlay::hide() {
 }
 
 bool DebugOverlay::isVisible() {
-    return mDebugOverlay;
+    return mIsVisible;
 }
 
 void DebugOverlay::setDebugText(std::string value) {

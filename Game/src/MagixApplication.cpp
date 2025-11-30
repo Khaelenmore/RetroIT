@@ -13,9 +13,10 @@ using namespace Ogre;
 MagixApplication::MagixApplication()
 {
     mMagixHandler = new MagixHandler();
-    mFrameListener = 0;
-    mRoot = 0;
-    mLoadingBar = 0;
+    mFrameListener = nullptr;
+    mRoot = nullptr;
+    mLoadingBar = nullptr;
+    mDebugOverlay = nullptr;
     // Provide a nice cross platform solution for locating the configuration files
     // On windows files are searched for in the current working directory, on OS X however
     // you must provide the full path, the helper function macBundlePath does this for us.
@@ -495,7 +496,9 @@ void MagixApplication::createScene(void)
     mSceneMgr->setFog(FOG_LINEAR, fadeColour, .0001, 500, 1500);
     mWindow->getViewport(0)->setBackgroundColour(fadeColour);
 
-    mMagixHandler->initialize(mSceneMgr, mWindow);
+    mDebugOverlay = new DebugOverlay(mWindow);
+
+    mMagixHandler->initialize(mSceneMgr, mWindow, mDebugOverlay);
     mMagixHandler->getExternalDefinitions()->initializeCapabilities(
             mRoot->getRenderSystem()->getCapabilities());
 
@@ -515,12 +518,9 @@ void MagixApplication::createScene(void)
 
 void MagixApplication::createFrameListener(void)
 {
-    // FIXME Not destroyed
-    auto* debugOverlay = new DebugOverlay(mWindow);
-
     // FIXME Destroyed in mFrameListener, should be here
-    auto* inputListener = new Magix::InputListener(mMagixHandler, mWindow, debugOverlay, true, true);
-    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow, debugOverlay, inputListener);
+    auto* inputListener = new Magix::InputListener(mMagixHandler, mWindow, mDebugOverlay, true, true);
+    mFrameListener = new MagixFrameListener(mMagixHandler, mSceneMgr, mWindow, mDebugOverlay, inputListener);
     mRoot->addFrameListener(mFrameListener);
 }
 
@@ -530,4 +530,5 @@ MagixApplication::~MagixApplication()
     delete mFrameListener;
     delete mRoot;
     delete mMagixEncryptionZipFactory;
+    delete mDebugOverlay;
 }

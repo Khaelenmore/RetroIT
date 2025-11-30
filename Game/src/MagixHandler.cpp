@@ -11,8 +11,9 @@ Appears to be the "manager of all managers"! XD
 //================================================================================
 MagixHandler::MagixHandler()
 {
-    mSceneMgr = 0;
-    mWindow = 0;
+    mSceneMgr = nullptr;
+    mWindow = nullptr;
+    mDebugOverlay = nullptr;
     mDebugText = "Press L to hide";
     initialized = false;
 
@@ -54,7 +55,7 @@ MagixHandler::~MagixHandler()
 }
 
 
-void MagixHandler::initialize(SceneManager *sceneMgr, RenderWindow *window)
+void MagixHandler::initialize(SceneManager *sceneMgr, RenderWindow *window, DebugOverlay *debugOverlay)
 {
     if(mSceneMgr)
     {
@@ -63,6 +64,7 @@ void MagixHandler::initialize(SceneManager *sceneMgr, RenderWindow *window)
 
     mSceneMgr = sceneMgr;
     mWindow = window;
+    mDebugOverlay = debugOverlay;
 
     mDef->initialize();
     mGameStateManager->initialize();
@@ -152,6 +154,8 @@ void MagixHandler::resetScene(bool startScene, const String &mapChange)
 bool MagixHandler::update(const FrameEvent &evt)
 {
     bool contFlag = true;
+
+    if (!mDebugText.empty()) mDebugOverlay->setDebugText(mDebugText);
 
     switch(mGameStateManager->getGameState())
     {
