@@ -112,14 +112,6 @@ void MagixApplication::createCamera(void)
 }
 
 
-void MagixApplication::createFrameListener(void)
-{
-    mFrameListener = new MagixFrameListener(mMagixHandler, mWindow, mCamera);
-    mFrameListener->showDebugOverlay(false);
-    mRoot->addFrameListener(mFrameListener);
-}
-
-
 void MagixApplication::destroyScene(void) {}    // Optional to override this
 
 

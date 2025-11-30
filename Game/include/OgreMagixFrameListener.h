@@ -4,16 +4,11 @@
 #include "MagixHandler.h"
 
 
-class ogremagixFrameListener : public MagixFrameListener, public OIS::MouseListener, 
-    public OIS::KeyListener
+class ogremagixFrameListener : public MagixFrameListener
 {
-private:
-    SceneManager* mSceneMgr;
-    MagixHandler *mMagixHandler;
 public:
     ogremagixFrameListener(MagixHandler *magixHandler, SceneManager *sceneMgr, 
         RenderWindow* win, Camera* cam);
-    bool frameStarted(const FrameEvent& evt);
 
     // MouseListener
     bool mouseMoved(const OIS::MouseEvent &e);

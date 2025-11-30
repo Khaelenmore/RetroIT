@@ -66,7 +66,7 @@ protected:
     virtual bool configure(void);
     virtual void chooseSceneManager(void);
     virtual void createCamera(void);
-    virtual void createFrameListener(void);
+    virtual void createFrameListener(void) = 0;
     virtual void createScene(void) = 0;    // pure virtual - this has to be overridden
     virtual void destroyScene(void);
     virtual void createViewports(void);

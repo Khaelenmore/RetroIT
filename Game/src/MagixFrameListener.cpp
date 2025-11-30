@@ -59,7 +59,7 @@ void MagixFrameListener::updateStats(void)
 
 
 // Constructor takes a RenderWindow because it uses that to determine input context
-MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler,
+MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler, SceneManager *sceneMgr,
     RenderWindow* win, Camera* cam, bool bufferedKeys, bool bufferedMouse) :
     mWindow(win),
     isStatsOn(false),
@@ -67,6 +67,7 @@ MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler,
     mInputManager(0),
     mMouse(0),
     mKeyboard(0),
+    mSceneMgr(sceneMgr),
     mMagixHandler(magixHandler)
 {
     using namespace OIS;
@@ -133,6 +134,10 @@ MagixFrameListener::MagixFrameListener(MagixHandler *magixHandler,
 
     //Register as a Window listener
     WindowEventUtilities::addWindowEventListener(mWindow, this);
+
+    mMouse->setEventCallback(this);
+    mKeyboard->setEventCallback(this);
+    mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 }
 
 
@@ -203,8 +208,6 @@ bool MagixFrameListener::frameStarted(const FrameEvent& evt)
         return false;
     }
 
-    mContinue = true;
-
     if(mMagixHandler->getDebugText() != "")
     {
         mDebugText = mMagixHandler->getDebugText();
@@ -213,7 +216,17 @@ bool MagixFrameListener::frameStarted(const FrameEvent& evt)
     //Need to capture/update each device
     mKeyboard->capture();
     mMouse->capture();
-    return mContinue;
+
+    bool contFlag = mMagixHandler->update(evt);
+
+    if(mWindow->getViewport(0)->getBackgroundColour() != mSceneMgr->getFogColour())
+    {
+        mWindow->getViewport(0)->setBackgroundColour(mSceneMgr->getFogColour());
+    }
+
+    //if(!contFlag)mMagixHandler->shutdown();
+
+    return contFlag;
 }
 
 

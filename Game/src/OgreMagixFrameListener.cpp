@@ -5,33 +5,8 @@
 //==============================================================
 ogremagixFrameListener::ogremagixFrameListener(MagixHandler *magixHandler,
     SceneManager *sceneMgr, RenderWindow* win, Camera* cam)
-    : MagixFrameListener(magixHandler, win, cam, true, true),
-    mSceneMgr(sceneMgr),
-    mMagixHandler(magixHandler)
+    : MagixFrameListener(magixHandler, sceneMgr, win, cam, true, true)
 {
-    mMouse->setEventCallback(this);
-    mKeyboard->setEventCallback(this);
-    mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
-}
-
-
-bool ogremagixFrameListener::frameStarted(const FrameEvent& evt)
-{
-    bool contFlag = MagixFrameListener::frameStarted(evt);
-
-    if(contFlag)
-    {
-        contFlag = mMagixHandler->update(evt);
-
-        if(mWindow->getViewport(0)->getBackgroundColour() != mSceneMgr->getFogColour())
-        {
-            mWindow->getViewport(0)->setBackgroundColour(mSceneMgr->getFogColour());
-        }
-    }
-
-    //if(!contFlag)mMagixHandler->shutdown();
-
-    return contFlag;
 
 }
 
@@ -731,7 +706,7 @@ bool ogremagixFrameListener::keyPressed(const OIS::KeyEvent &e)
 
     //mMagixHandler->getMagixGUI()->getAlertBox()->showAlert(StringConverter::toString(e.key),0.5,0.5);
 
-    return mContinue;
+    return true;
 }
 
 

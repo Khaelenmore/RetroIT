@@ -47,13 +47,15 @@ D:        Step right
 using namespace Ogre;
 
 
-class MagixFrameListener: public FrameListener, public WindowEventListener
+class MagixFrameListener:
+    public FrameListener,
+    public WindowEventListener,
+    public OIS::MouseListener,
+    public OIS::KeyListener
 {
-protected:
-    void updateStats(void);
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    MagixFrameListener(MagixHandler *magixHandler, RenderWindow* win, Camera* cam, 
+    MagixFrameListener(MagixHandler *magixHandler, SceneManager *sceneMgr, RenderWindow* win, Camera* cam,
         bool bufferedKeys = true, bool bufferedMouse = true);
 
     //Adjust mouse clipping area
@@ -68,6 +70,7 @@ public:
     bool frameStarted(const FrameEvent& evt);
     bool frameEnded(const FrameEvent& evt);
 protected:
+    void updateStats(void);
     //Camera* mCamera;
 
     //Vector3 mTranslateVector;
@@ -93,6 +96,7 @@ protected:
     OIS::InputManager* mInputManager;
     OIS::Mouse*    mMouse;
     OIS::Keyboard* mKeyboard;
+protected:
+    SceneManager* mSceneMgr;
     MagixHandler *mMagixHandler;
-    bool mContinue;
 };
